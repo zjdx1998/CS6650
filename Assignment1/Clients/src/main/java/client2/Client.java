@@ -1,11 +1,9 @@
-package client1;
-import io.swagger.client.*;
-import io.swagger.client.api.*;
+package client2;
+
+import io.swagger.client.api.SkiersApi;
 import io.swagger.client.model.LiftRide;
-import org.kohsuke.args4j.*;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,7 +48,7 @@ public class Client {
                 "Number of Successful Requests Sent: " + Arguments.successCount.get() + "\n"
                 + "Number of Unsuccessful Requests: " + Arguments.failureCount.get() + "\n"
                 + "Total run time: " + String.valueOf(endTime-startTime) + " (ms) \n"
-                + "Total Throughput in requests per second: " + 1.0 * (Arguments.failureCount.get() + Arguments.successCount.get())/(endTime-startTime) + "\n"
+                + "Total Throughput in requests per second: " + 1.0 * (Arguments.failureCount.get() + Arguments.successCount.get())/(endTime-startTime)
         );
     }
 

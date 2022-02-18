@@ -14,7 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.regex.Pattern;
-
+/**
+ * @author jeromy zhang
+ * @date Feb-17-22
+ */
 @WebServlet(name = "SkiersServlet", value = "/SkiersServlet")
 public class SkiersServlet extends HttpServlet {
 

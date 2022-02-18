@@ -1,5 +1,8 @@
 package constants;
-
+/**
+ * @author jeromy zhang
+ * @date Feb-17-22
+ */
 public class SkierNum {
     private String time;
     private int numSkiers;

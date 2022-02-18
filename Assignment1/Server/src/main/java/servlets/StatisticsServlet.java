@@ -11,7 +11,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
+/**
+ * @author jeromy zhang
+ * @date Feb-17-22
+ */
 @WebServlet(name = "StatisticsServlet")
 public class StatisticsServlet extends HttpServlet {
     private final Gson gson  = new Gson();

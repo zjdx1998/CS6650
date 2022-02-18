@@ -1,5 +1,8 @@
 package constants;
-
+/**
+ * @author jeromy zhang
+ * @date Feb-17-22
+ */
 public class Constant {
     public static final String CONTENT_TYPE = "application/json";
     public static final String MISS_PARAM = "Missing Parameters";
