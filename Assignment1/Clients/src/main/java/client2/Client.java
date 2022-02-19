@@ -61,7 +61,7 @@ public class Client {
         CountDownLatch testLatch = new CountDownLatch(1);
         Arguments.count = new CountDownLatch(1);
         CountDownLatch overall = new CountDownLatch(1);
-        new PhaseThread(1, 10001, 1, 420, 1000, testLatch, overall).run();
+        new PhaseThread(1, 10001, 1, 420, 1000, testLatch).run();
         testLatch.await();
         long endTime = System.currentTimeMillis();
         System.out.println("Total Duration is " + (endTime - startTime) + " with average latency about " + 1.0*(endTime - startTime)/10000);
@@ -70,18 +70,13 @@ public class Client {
     private static void doPhase(String phaseName, double percent, int numPhaseThreads, int startTime, int endTime, int numOfReqs) throws InterruptedException {
         System.out.println(phaseName + " is ready to start!");
         System.out.println(phaseName + " should execute " + numPhaseThreads + " threads with " + numOfReqs + " requests each.");
-        long phaseStartTime = System.currentTimeMillis();
         CountDownLatch latch = new CountDownLatch((int)Math.ceil(numPhaseThreads * percent));
-        CountDownLatch overall = new CountDownLatch(numPhaseThreads);
         for(int i=0;i<numPhaseThreads;i++){
             int startID = (int)( 1.0 * Arguments.numSkiers / numPhaseThreads * 1.0 * i + 1),
                     endID = (int)( 1.0 * Arguments.numSkiers / numPhaseThreads * (i + 1) );
-            pool.execute(new PhaseThread(startID, endID, startTime, endTime, numOfReqs, latch, overall));
+            pool.execute(new PhaseThread(startID, endID, startTime, endTime, numOfReqs, latch));
         }
         latch.await();
         System.out.println(phaseName + " has already completed " + String.valueOf(percent*100) + "% tasks");
-        overall.await();
-        long phaseEndTime = System.currentTimeMillis();
-        System.out.println(phaseName + " completed in " + (phaseEndTime - phaseStartTime) + " ms");
     }
 }

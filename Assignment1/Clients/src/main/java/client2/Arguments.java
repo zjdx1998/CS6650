@@ -7,6 +7,7 @@ import org.kohsuke.args4j.Option;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -35,7 +36,7 @@ public class Arguments {
 
     @Argument
     private List<String> arguments = new ArrayList<String>();
-    public static List<Record> Records = new ArrayList<>();
+    public static CopyOnWriteArrayList<Record> Records = new CopyOnWriteArrayList<>();
 
     public static String serverURL;
 

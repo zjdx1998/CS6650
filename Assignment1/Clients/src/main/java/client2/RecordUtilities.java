@@ -18,7 +18,7 @@ public class RecordUtilities {
     }
 
     public void calculateOutput() throws IOException {
-        Collections.sort(Arguments.Records);
+        Collections.sort(Arguments.Records);r
         double min = 1000000, max = 0, sum = 0;
         double median = Arguments.Records.get((int)(0.5*Arguments.Records.size())).getLatency();
         double p99 = Arguments.Records.get((int)(0.99*Arguments.Records.size())).getLatency();
@@ -34,8 +34,8 @@ public class RecordUtilities {
                 "Mean response time: " + mean + "\n"
                 +"Median response time: " + median + "\n"
                 +"Throughput: " + throughput + "\n"
-                +"99th response time" + p99 + "\n"
-                +"min and max response time" + "min: " + min + " , max: " + max
+                +"99th response time: " + p99 + "\n"
+                +"min and max response time: " + "min: " + min + " , max: " + max
         );
     }
 }
