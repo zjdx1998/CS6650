@@ -6,12 +6,15 @@ import java.util.Collections;
 
 public class RecordUtilities {
     private FileWriter csvWriter;
-    public RecordUtilities() throws IOException {
-        csvWriter = new FileWriter("./res/records" + System.currentTimeMillis()+".csv");
+    private String filePath;
+    public RecordUtilities(String filePath) throws IOException {
+        this.filePath = filePath;
+        csvWriter = new FileWriter(filePath);
+        csvWriter.append("startTime,requestType,latency,responseCode");
     }
 
     public void addRecordToCSV(Record r) throws IOException {
-        csvWriter.append("startTime,requestType,latency,responseCode");
+        csvWriter.append(r.toString());
     }
 
     public void calculateOutput() throws IOException {
@@ -26,7 +29,7 @@ public class RecordUtilities {
             addRecordToCSV(r);
         }
         double mean = sum / Arguments.Records.size();
-        double throughput = Arguments.Records.size() / sum;
+        double throughput = Arguments.Records.size() / sum * 1000;
         System.out.println(
                 "Mean response time: " + mean + "\n"
                 +"Median response time: " + median + "\n"

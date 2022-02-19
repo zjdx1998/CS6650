@@ -18,18 +18,16 @@ public class PhaseThread implements Runnable{
     private int endTime;
     private int numOfReqs;
     private CountDownLatch latch;
-    private CountDownLatch overall;
     private SkiersApi api;
     public static final int RETRIES = 5;
 
-    public PhaseThread(int startID, int endID, int startTime, int endTime, int numOfReqs, CountDownLatch latch, CountDownLatch overall) {
+    public PhaseThread(int startID, int endID, int startTime, int endTime, int numOfReqs, CountDownLatch latch) {
         this.startID = startID;
         this.endID = endID;
         this.startTime = startTime;
         this.endTime = endTime;
         this.numOfReqs = numOfReqs;
         this.latch = latch;
-        this.overall = overall;
         api = new SkiersApi();
         api.getApiClient().setBasePath(Arguments.serverURL);
     }
@@ -63,9 +61,8 @@ public class PhaseThread implements Runnable{
             }
             if(curTurn < RETRIES) Arguments.successCount.incrementAndGet();
             else Arguments.failureCount.decrementAndGet();
-            latch.countDown();
-            overall.countDown();
-            Arguments.count.countDown();
         }
+        latch.countDown();
+        Arguments.count.countDown();
     }
 }

@@ -40,16 +40,19 @@ public class Client {
         System.out.println("Ready to run phases!");
         long startTime = System.currentTimeMillis();
         doPhase("Phase1", 0.2, NumPhaseOneThreads, 1, 90, (int)(Arguments.numRuns * 0.2 * Arguments.numSkiers/NumPhaseOneThreads));
-        doPhase("Phase2", 0.2, NumPhaseOneThreads, 91, 360, (int)(Arguments.numRuns * 0.6 * Arguments.numSkiers/NumPhaseOneThreads));
-        doPhase("Phase3", 1.0, NumPhaseOneThreads, 361, 420, (int)(Arguments.numRuns * 0.1));
+        doPhase("Phase2", 0.2, NumPhaseTwoThreads, 91, 360, (int)(Arguments.numRuns * 0.6 * Arguments.numSkiers/NumPhaseTwoThreads));
+        doPhase("Phase3", 1.0, NumPhaseThreeThreads, 361, 420, (int)(Arguments.numRuns * 0.1));
+        Arguments.count.countDown();
         pool.shutdown();
         long endTime = System.currentTimeMillis();
         System.out.println(
                 "Number of Successful Requests Sent: " + Arguments.successCount.get() + "\n"
                 + "Number of Unsuccessful Requests: " + Arguments.failureCount.get() + "\n"
                 + "Total run time: " + String.valueOf(endTime-startTime) + " (ms) \n"
-                + "Total Throughput in requests per second: " + 1.0 * (Arguments.failureCount.get() + Arguments.successCount.get())/(endTime-startTime)
+                + "Total Throughput in requests per second: " + 1000.0 * (Arguments.failureCount.get() + Arguments.successCount.get())/(endTime-startTime)
         );
+        new RecordUtilities("./res/records/" + Arguments.numThreads + "_" + Arguments.numSkiers + ".csv").calculateOutput();
+        System.exit(0);
     }
 
     private static void testLatency() throws InterruptedException {
@@ -66,6 +69,7 @@ public class Client {
 
     private static void doPhase(String phaseName, double percent, int numPhaseThreads, int startTime, int endTime, int numOfReqs) throws InterruptedException {
         System.out.println(phaseName + " is ready to start!");
+        System.out.println(phaseName + " should execute " + numPhaseThreads + " threads with " + numOfReqs + " requests each.");
         long phaseStartTime = System.currentTimeMillis();
         CountDownLatch latch = new CountDownLatch((int)Math.ceil(numPhaseThreads * percent));
         CountDownLatch overall = new CountDownLatch(numPhaseThreads);
