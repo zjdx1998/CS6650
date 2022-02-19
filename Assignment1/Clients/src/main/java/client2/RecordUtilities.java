@@ -10,7 +10,7 @@ public class RecordUtilities {
     public RecordUtilities(String filePath) throws IOException {
         this.filePath = filePath;
         csvWriter = new FileWriter(filePath);
-        csvWriter.append("startTime,requestType,latency,responseCode");
+        csvWriter.append("startTime,requestType,latency,responseCode\n");
     }
 
     public void addRecordToCSV(Record r) throws IOException {

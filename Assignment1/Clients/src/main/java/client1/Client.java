@@ -61,10 +61,10 @@ public class Client {
         long startTime = System.currentTimeMillis();
         CountDownLatch testLatch = new CountDownLatch(1);
         Arguments.count = new CountDownLatch(1);
-        new PhaseThread(1, 10001, 1, 420, 1000, testLatch).run();
+        new PhaseThread(1, Arguments.numSkiers, 1, 420, Arguments.numSkiers, testLatch).run();
         testLatch.await();
         long endTime = System.currentTimeMillis();
-        System.out.println("Total Duration is " + (endTime - startTime) + " with average latency about " + 1.0*(endTime - startTime)/10000);
+        System.out.println("Total Duration is " + 1.0*(endTime - startTime)/1000 + " with average latency about " + 1.0*(endTime - startTime)/Arguments.numSkiers);
     }
 
     private static void doPhase(String phaseName, double percent, int numPhaseThreads, int startTime, int endTime, int numOfReqs) throws InterruptedException {

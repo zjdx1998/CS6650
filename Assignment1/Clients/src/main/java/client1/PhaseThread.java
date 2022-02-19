@@ -60,7 +60,7 @@ public class PhaseThread implements Runnable{
                 }
             }
             if(curTurn < RETRIES) Arguments.successCount.incrementAndGet();
-            else Arguments.failureCount.decrementAndGet();
+            else Arguments.failureCount.incrementAndGet();
         }
         latch.countDown();
         Arguments.count.countDown();
