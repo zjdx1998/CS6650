@@ -65,8 +65,8 @@ Load Balancing:
 64-20000 Without Load Balancing
 
 <center class='half'>
-  <img src = README.assets/image-20220311133914688.png width=40%/>
-  <img src = README.assets/image-20220311140340323.png width=40%/>
+  <img src = readme.assets/image-20220311133914688.png width=40%/>
+  <img src = readme.assets/image-20220311140340323.png width=40%/>
 </center>
 
 
@@ -74,18 +74,22 @@ Load Balancing:
 Here is the result of `numThreads=64 numSkiers=20000` with two instances Load Balanced.
 
 <center class='half'>
-  <img src = README.assets/image-20220311142526151.png width=40%/>
-  <img src = README.assets/image-20220311141846829.png width=40%/>
+  <img src = readme.assets/image-20220311142526151.png width=40%/>
+  <img src = readme.assets/image-20220311141846829.png width=40%/>
 </center>
 
 From the chart we know all throughput, total run time, message rates have a significant improvement. 
 
 The improvement percentage for each parameter is
+
+
 $$
 P_{throughput} = \frac{1277.33}{883.99} = 1.445 \\
 P_{totalRunTime} = \frac{122976}{178026} = 0.6907\\
 P_{messageRates} = \frac{2.4k/s}{1.6k/s} = 1.5
 $$
+
+
 So we can get the conclusion that we need load balancing!
 
 
