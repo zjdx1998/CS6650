@@ -17,7 +17,7 @@ public class Consumer {
     private ConnectionFactory conFactory;
     private Connection con;
     private static JedisPool jedisPool;
-    private Integer numThreads = 10;
+    private Integer numThreads = 100;
     private String queueName;
     public static final Map<Integer, List<JsonObject>> record = new ConcurrentHashMap<>();
     Consumer(String[] args){
@@ -44,8 +44,12 @@ public class Consumer {
     public static void main(String[] args) {
         Consumer consumer = new Consumer(args);
         ExecutorService pool = Executors.newFixedThreadPool(consumer.getNumThreads());
-        for(int i=0; i< consumer.getNumThreads(); i++)
-            pool.execute(new ConsumerRunnable(jedisPool, consumer.getQueueName(), consumer.getCon()));
+        for(int i=0; i< consumer.getNumThreads(); i++) {
+            if(args[1].equals("skier"))
+                pool.execute(new ConsumerRunnable(jedisPool, consumer.getQueueName(), consumer.getCon()));
+            else
+                pool.execute(new ConsumerRunnableResorts(jedisPool, consumer.getQueueName(), consumer.getCon()));
+        }
     }
 
     public Integer getNumThreads() {

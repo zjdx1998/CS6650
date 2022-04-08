@@ -13,4 +13,4 @@ FROM openjdk:11-ea-17-jre-slim
 COPY --from=build /home/app/target/Consumer-1.0-SNAPSHOT-jar-with-dependencies.jar /usr/local/lib/consumer.jar
 # EXPOSE 8080
 ENTRYPOINT ["java","-jar","/usr/local/lib/consumer.jar"]
-CMD ["localhost"]
+CMD ["localhost", "skier"]

@@ -11,14 +11,13 @@ import java.util.*;
 import java.util.logging.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ConsumerRunnable implements Runnable{
+public class ConsumerRunnableResorts implements Runnable{
     private String queueName;
     private Connection con;
     private JedisPool jedisPool;
     private final Gson gson = new Gson();
-    public ConsumerRunnable(JedisPool jedisPool, String queueName, Connection con){
+    public ConsumerRunnableResorts(JedisPool jedisPool, String queueName, Connection con){
         this.jedisPool = jedisPool;
         this.queueName = queueName;
         this.con = con;
@@ -50,13 +49,16 @@ public class ConsumerRunnable implements Runnable{
             String seasonId = String.valueOf(json.get("seasonID"));
             String dayId = String.valueOf(json.get("dayID"));
             String liftId = String.valueOf(json.get("liftID"));
-            String vertical = String.valueOf(json.get("vertical"));
-            Map<String, String> current = jedis.hgetAll(skierId);
+            String resortId = String.valueOf(json.get("resortID"));
+            String time = String.valueOf(json.get("time"));
+            String key = "day" + dayId;
+            Map<String, String> current = jedis.hgetAll(key);
             current.put("seasonID", current.getOrDefault("seasonID", "") + "|" + seasonId);
-            current.put("dayID", current.getOrDefault("dayID", "") + "|" + dayId);
+            current.put("resortID", current.getOrDefault("resortID", "") + "|" + resortId);
+            current.put("skierID", current.getOrDefault("skierID", "") + "|" + skierId);
             current.put("liftID", current.getOrDefault("liftID", "") + "|" + liftId);
-            current.put("vertical", current.getOrDefault("vertical", "") + "|" + vertical);
-            jedis.hmset(skierId, current);
+            current.put("time", current.getOrDefault("time", "") + "|" + time);
+            jedis.hmset(key, current);
         }
     }
 }
