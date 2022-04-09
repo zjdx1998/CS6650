@@ -8,6 +8,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import constants.Constant;
 import constants.Message;
 import io.swagger.client.model.*;
+import org.apache.commons.lang3.concurrent.EventCountCircuitBreaker;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -41,7 +43,8 @@ public class SkiersServlet extends HttpServlet {
             .addResortsItem(new SkierVerticalResorts().seasonID(Constant.SPRING).totalVert(Constant.SEVEN));
 
     private ConnectionFactory conFactory = new ConnectionFactory();
-    public final Integer NUM_CHANNEL = 10;
+    private EventCountCircuitBreaker breaker;
+    public final Integer NUM_CHANNEL = 20;
     private BlockingQueue<Channel> channelPool;
 
     @Override
@@ -59,6 +62,7 @@ public class SkiersServlet extends HttpServlet {
             channel.queueDeclare(Constant.QUEUE_NAME, false, false, false, null);
             channelPool = new LinkedBlockingQueue<>();
             for(int i=0; i<NUM_CHANNEL; i++) channelPool.add(channel);
+            breaker = new EventCountCircuitBreaker(500, 5, TimeUnit.SECONDS, 300);
         } catch (IOException | TimeoutException e) {
             e.printStackTrace();
         }
@@ -114,11 +118,13 @@ public class SkiersServlet extends HttpServlet {
             e.printStackTrace();
         }
         if(channel != null) {
+            while(!breaker.checkState());
             channel.basicPublish("", Constant.QUEUE_NAME, null, msg.toString().getBytes());
             res.setStatus(HttpServletResponse.SC_CREATED);
             System.out.println("Sent " + msg + " to rabbitmq");
             res.getWriter().write("Sent " + msg + " to rabbitmq");
             channelPool.add(channel);
+            breaker.incrementAndCheckState();
         } else{
             res.setStatus(HttpServletResponse.SC_EXPECTATION_FAILED);
         }

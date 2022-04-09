@@ -1,23 +1,18 @@
 import com.google.gson.JsonObject;
-import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 import java.io.*;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Scanner;
 import java.util.concurrent.*;
 
 public class Consumer {
     private ConnectionFactory conFactory;
     private Connection con;
     private static JedisPool jedisPool;
-    private Integer numThreads = 100;
+    private Integer numThreads = 200;
     private String queueName;
     public static final Map<Integer, List<JsonObject>> record = new ConcurrentHashMap<>();
     Consumer(String[] args){
