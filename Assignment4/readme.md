@@ -53,7 +53,7 @@ Please visit [Github Repo](https://github.com/zjdx1998/CS6650/tree/Homework4)
 
 All the service can be used correctly and within a low response time.
 
-![image-20220408161029326](readme.assets/image-20220408161029326.png)
+![image-20220408161029326](readme.assets/results.png)
 
 
 
