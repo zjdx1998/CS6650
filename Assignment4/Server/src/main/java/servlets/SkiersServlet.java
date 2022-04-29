@@ -15,20 +15,16 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 /**
  * @author jeromy zhang
@@ -46,26 +42,43 @@ public class SkiersServlet extends HttpServlet {
     private EventCountCircuitBreaker breaker;
     public final Integer NUM_CHANNEL = 20;
     private BlockingQueue<Channel> channelPool;
+    private static JedisPool jedisPool;
 
     @Override
     public void init() throws ServletException {
         super.init();
+        try {
+            InputStream is = this.getClass().getClassLoader().getResourceAsStream("rabbitmq.conf");
+            assert is != null;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String ip = reader.readLine();
+            reader.readLine();
+            reader.readLine();
+            reader.readLine();
+            jedisPool = new JedisPool(new JedisPoolConfig(), ip, Integer.parseInt(reader.readLine()), 10000, "CS6650cs6650");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         File confFile = new File(this.getClass()
                 .getClassLoader().getResource("rabbitmq.conf").getFile());
         try {
             Scanner cin = new Scanner(confFile);
-            conFactory.setHost(cin.nextLine());
+            String ip = cin.nextLine();
+            conFactory.setHost(ip);
             conFactory.setPort(Integer.parseInt(cin.nextLine()));
             conFactory.setUsername(cin.nextLine());
             conFactory.setPassword(cin.nextLine());
+            //jedisPool = new JedisPool(new JedisPoolConfig(), "172.31.5.13", 6379, 1000, "CS6650cs6650");
             Channel channel = conFactory.newConnection().createChannel();
             channel.queueDeclare(Constant.QUEUE_NAME, false, false, false, null);
             channelPool = new LinkedBlockingQueue<>();
             for(int i=0; i<NUM_CHANNEL; i++) channelPool.add(channel);
             breaker = new EventCountCircuitBreaker(500, 5, TimeUnit.SECONDS, 300);
+            System.out.println("Connecting...");
         } catch (IOException | TimeoutException e) {
             e.printStackTrace();
         }
+
     }
 
     @Override
@@ -83,9 +96,37 @@ public class SkiersServlet extends HttpServlet {
             res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             res.getWriter().write(gson.toJson(new Message(Constant.INVALID_PATH)));
         }else{
+            try(Jedis jedis = jedisPool.getResource()) {
+                if (urlSplit.length==3) {
+                    String[] verticals = jedis.hget(urlSplit[1], "vertical").split("\\|");
+                    String[] seasons = jedis.hget(urlSplit[1], "seasonID").split("\\|");
+                    HashMap<String, Integer> map = new HashMap<String, Integer>();
+                    for (int i = 1; i < verticals.length; i++) {
+                        map.put(seasons[i], map.getOrDefault(seasons[i], 0) + Integer.parseInt(verticals[i]));
+                    }
+                    JsonObject msg = new JsonObject();
+                    JsonObject subMsg = new JsonObject();
+                    for (String key : map.keySet()) {
+                        subMsg.add(key, new JsonPrimitive(map.get(key)));
+                    }
+                    msg.add("resort", subMsg);
+                    res.getWriter().write(gson.toJson(msg));
+                } else {
+                    String[] vertical = jedis.hget(urlSplit[7], "vertical").split("\\|");
+                    String[] seasons = jedis.hget(urlSplit[7], "seasonID").split("\\|");
+                    String[] days = jedis.hget(urlSplit[7], "dayID").split("\\|");
+                    int total_vertical = 0;
+                    for (int i = 1; i < vertical.length; i++) {
+                        if (days[i].equals("\"" + urlSplit[5] + "\"") && seasons[i].equals("\"" + urlSplit[3] + "\"")){
+                            total_vertical += Integer.parseInt(vertical[i]);
+                        }
+                    }
+                    res.getWriter().write(String.valueOf(total_vertical));
+                }
+            }catch(NullPointerException e){
+                res.getWriter().write("no data found!");
+            }
             res.setStatus(HttpServletResponse.SC_OK);
-            if(urlSplit.length == 3) res.getWriter().write(gson.toJson(skierVertical));
-            else res.getWriter().write(gson.toJson(Constant.ID));
         }
     }
 
@@ -141,6 +182,5 @@ public class SkiersServlet extends HttpServlet {
                     Integer.parseInt(urlPath[5])<=Constant.DAY_COUNTS;
         }
         return false;
-
     }
 }
